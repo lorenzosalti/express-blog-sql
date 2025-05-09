@@ -12,8 +12,6 @@ app.use(express.static('public'));
 
 app.use(express.json());
 
-
-
 // homepage
 app.get('/', (req, res) => {
   res.send('Server del mio blog');
