@@ -38,8 +38,9 @@ function show(req, res) {
     if (err) return res.status(500).json({ error: 'Database query failed' });
 
     // post not found
-    if (results.length === 0) return res.status(404).json({ error: 'Pizza not found' });
+    if (results.length === 0) return res.status(404).json({ error: 'Post not found' });
 
+    // successful
     res.json(results[0]);
   });
 };
@@ -122,23 +123,22 @@ function modify(req, res) {
 // destroy
 function destroy(req, res) {
 
-  const postId = parseInt(req.params.id);
-  const requiredPost = posts.find(posts => posts.id === postId);
+  // post id from request
+  const postId = req.params.id;
 
-  if (!requiredPost) {
-    return res.status(404).json({
-      status: 404,
-      error: 'Not found',
-      message: 'Post non trovato'
-    });
-  };
+  // sql query
+  const sql = 'DELETE FROM posts WHERE id = ?';
 
-  posts.splice(posts.indexOf(requiredPost), 1);
+  // connection to db
+  connection.query(sql, [postId], (err) => {
 
-  console.log(posts);
+    // db or query fail
+    if (err) return res.status(500).json({ error: 'Failed to delete post' });
 
-  res.sendStatus(204);
-};
+    // successful
+    res.sendStatus(204)
+  });
+}
 
 
 
