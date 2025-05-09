@@ -1,30 +1,23 @@
 const posts = require('../data/posts.js');
 
+const connection = require('../data/db');
+
 
 
 // index
 function index(req, res) {
 
-  const tags = req.query.tags;
+  // sql query
+  const sql = 'SELECT * FROM posts';
 
-  if (tags) {
+  // connection to db
+  connection.query(sql, (err, results) => {
 
-    const filteredPosts = posts.filter(post => post.tags.length && post.tags.includes(tags));
+    if (err) return res.status(500).json({ error: 'Database query failed' });
 
-    if (!filteredPosts.length) {
-      return res.status(404).json({
-        status: 404,
-        error: 'Not found',
-        message: 'Post non trovato'
-      });
-    };
+    res.json(results);
 
-    res.json(filteredPosts);
-
-    return;
-  }
-
-  res.json(posts);
+  });
 };
 
 
@@ -32,18 +25,23 @@ function index(req, res) {
 // show
 function show(req, res) {
 
-  const postId = parseInt(req.params.id);
-  const requiredPost = posts.find(posts => posts.id === postId);
+  // post id from request
+  const postId = req.params.id;
 
-  if (!requiredPost) {
-    return res.status(404).json({
-      status: 404,
-      error: 'Not found',
-      message: 'Post non trovato'
-    });
-  };
+  // sql query
+  const sql = 'SELECT * FROM posts WHERE id = ?';
 
-  res.json(requiredPost);
+  // connection to db
+  connection.query(sql, [postId], (err, results) => {
+
+    // db or query fail
+    if (err) return res.status(500).json({ error: 'Database query failed' });
+
+    // post not found
+    if (results.length === 0) return res.status(404).json({ error: 'Pizza not found' });
+
+    res.json(results[0]);
+  });
 };
 
 
